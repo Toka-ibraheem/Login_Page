@@ -25,10 +25,10 @@ public class LoginTests {
     public void testLoginFormElementsPresence() {
         // Assert that the username field is present
         Assert.assertTrue(isElementPresent(By.id("user-name")), "Username field is not present");
-
+        
         // Assert that the password field is present
         Assert.assertTrue(isElementPresent(By.id("password")), "Password field is not present");
-
+        
         // Assert that the login button is present
         Assert.assertTrue(isElementPresent(By.id("login-button")), "Login button is not present");
     }
@@ -40,13 +40,13 @@ public class LoginTests {
 
         // Wait until the inventory container is visible
         WebElement inventoryContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("inventory_container")));
-
+        
         // Assert that the inventory container is displayed after login
         Assert.assertTrue(inventoryContainer.isDisplayed(), "Inventory container is not visible after login");
 
         // Find the Swag Labs header element
         WebElement swagLabsHeader = driver.findElement(By.className("title"));
-
+        
         // Assert that the text "Swag Labs" is present in the Swag Labs header
         Assert.assertTrue(swagLabsHeader.getText().contains("Swag Labs"), "'Swag Labs' text is not visible after login");
     }
@@ -58,41 +58,27 @@ public class LoginTests {
 
         // Wait until the error message container is visible
         WebElement errorContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".error-message-container.error")));
-
+        
         // Assert that the error message container is displayed
         Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed");
-
+        
         // Assert that the error message text contains the expected message for invalid credentials
         Assert.assertTrue(errorContainer.getText().contains("Epic sadface: Username and password do not match any user"), "Error message text is incorrect");
     }
 
     @Test(priority = 4)
     public void testEmptyUsernameLogin() {
-        // Login with empty username
         login("", "secret_sauce");
-
-        // Wait until the error message container is visible
         WebElement errorContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".error-message-container.error")));
-
-        // Assert that the error message container is displayed for empty username
-        Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed for empty username");
-
-        // Assert that the error message text contains the expected message for empty username
+        Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed for empty username login");
         Assert.assertTrue(errorContainer.getText().contains("Epic sadface: Username is required"), "Error message text for empty username is incorrect");
     }
 
     @Test(priority = 5)
     public void testEmptyPasswordLogin() {
-        // Login with empty password
         login("standard_user", "");
-
-        // Wait until the error message container is visible
         WebElement errorContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".error-message-container.error")));
-
-        // Assert that the error message container is displayed for empty password
-        Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed for empty password");
-
-        // Assert that the error message text contains the expected message for empty password
+        Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed for empty password login");
         Assert.assertTrue(errorContainer.getText().contains("Epic sadface: Password is required"), "Error message text for empty password is incorrect");
     }
 
@@ -108,19 +94,21 @@ public class LoginTests {
     private void login(String username, String password) {
         // Wait until the username field is visible
         WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")));
-
+        
         // Wait until the password field is visible
         WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
-
+        
         // Wait until the login button is clickable
         WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button")));
-
-        // Enter the username into the username field
+        
+        // Clear existing text and enter the username into the username field
+        usernameField.clear();
         usernameField.sendKeys(username);
-
-        // Enter the password into the password field
+        
+        // Clear existing text and enter the password into the password field
+        passwordField.clear();
         passwordField.sendKeys(password);
-
+        
         // Click on the login button
         loginButton.click();
     }
