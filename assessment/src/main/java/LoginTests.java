@@ -14,11 +14,20 @@ public class LoginTests {
 
     @BeforeClass
     public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "C:/Users/Toka/Downloads/chromedriver.exe"); // Set ChromeDriver path
-        driver = new ChromeDriver(); // Initialize ChromeDriver
-        driver.manage().window().maximize(); // Maximize the browser window
-        driver.get(baseUrl); // Open the base URL
-        wait = new WebDriverWait(driver, 10); // Initialize WebDriverWait with a timeout of 10 seconds
+        // Set the path to ChromeDriver executable
+        System.setProperty("webdriver.chrome.driver", "C:/Users/Toka/Downloads/chromedriver.exe");
+        
+        // Initialize ChromeDriver instance
+        driver = new ChromeDriver();
+        
+        // Maximize the browser window
+        driver.manage().window().maximize();
+        
+        // Open the base URL of the application
+        driver.get(baseUrl);
+        
+        // Initialize WebDriverWait with a timeout of 10 seconds
+        wait = new WebDriverWait(driver, 10);
     }
 
     @Test(priority = 1)
@@ -68,17 +77,31 @@ public class LoginTests {
 
     @Test(priority = 4)
     public void testEmptyUsernameLogin() {
+        // Login with empty username
         login("", "secret_sauce");
+        
+        // Wait until the error message container is visible
         WebElement errorContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".error-message-container.error")));
+        
+        // Assert that the error message container is displayed
         Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed for empty username login");
+        
+        // Assert that the error message text contains the expected message for empty username
         Assert.assertTrue(errorContainer.getText().contains("Epic sadface: Username is required"), "Error message text for empty username is incorrect");
     }
 
     @Test(priority = 5)
     public void testEmptyPasswordLogin() {
+        // Login with empty password
         login("standard_user", "");
+        
+        // Wait until the error message container is visible
         WebElement errorContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".error-message-container.error")));
+        
+        // Assert that the error message container is displayed
         Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed for empty password login");
+        
+        // Assert that the error message text contains the expected message for empty password
         Assert.assertTrue(errorContainer.getText().contains("Epic sadface: Password is required"), "Error message text for empty password is incorrect");
     }
 
@@ -124,3 +147,4 @@ public class LoginTests {
         }
     }
 }
+
