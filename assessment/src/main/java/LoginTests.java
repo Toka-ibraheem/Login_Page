@@ -2,91 +2,107 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 
 public class LoginTests {
-    private WebDriver driver;
-    private String baseUrl = "https://www.saucedemo.com/";
+    private WebDriver driver; // WebDriver instance to control the browser
+    private String baseUrl = "https://www.saucedemo.com/"; // Base URL of the application
+    private WebDriverWait wait; // WebDriverWait instance for waiting for elements
 
     @BeforeClass
     public void setUp() {
-        
-    	System.setProperty("webdriver.chrome.driver", "C:\\path\\to\\chromedriver.exe"); 
-    	// Initialize ChromeDriver instance
-        driver = new ChromeDriver();
-        // Open the baseUrl
-        driver.get(baseUrl);
+        System.setProperty("webdriver.chrome.driver", "C:/Users/Toka/Downloads/chromedriver.exe"); // Set ChromeDriver path
+        driver = new ChromeDriver(); // Initialize ChromeDriver
+        driver.manage().window().maximize(); // Maximize the browser window
+        driver.get(baseUrl); // Open the base URL
+        wait = new WebDriverWait(driver, 10); // Initialize WebDriverWait with a timeout of 10 seconds
     }
 
-    @Test
+    @Test(priority = 1)
     public void testLoginFormElementsPresence() {
-        // Check for username field
-        WebElement usernameField = driver.findElement(By.id("user-name"));
-        Assert.assertTrue(usernameField.isDisplayed(), "Username field is not present");
-
-        // Check for password field
-        WebElement passwordField = driver.findElement(By.id("password"));
-        Assert.assertTrue(passwordField.isDisplayed(), "Password field is not present");
-
-        // Check for login button
-        WebElement loginButton = driver.findElement(By.id("login-button"));
-        Assert.assertTrue(loginButton.isDisplayed(), "Login button is not present");
+        // Assert that the username field is present
+        Assert.assertTrue(isElementPresent(By.id("user-name")), "Username field is not present");
+        
+        // Assert that the password field is present
+        Assert.assertTrue(isElementPresent(By.id("password")), "Password field is not present");
+        
+        // Assert that the login button is present
+        Assert.assertTrue(isElementPresent(By.id("login-button")), "Login button is not present");
     }
 
-    @Test
+    @Test(priority = 2)
     public void testValidCredentialsLogin() {
-        // Enter valid username
-        WebElement usernameField = driver.findElement(By.id("user-name"));
-        usernameField.clear();
-        usernameField.sendKeys("standard_user");
+        // Login with valid credentials
+        login("standard_user", "secret_sauce");
 
-        // Enter valid password
-        WebElement passwordField = driver.findElement(By.id("password"));
-        passwordField.clear();
-        passwordField.sendKeys("secret_sauce");
+        // Wait until the inventory container is visible
+        WebElement inventoryContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("inventory_container")));
+        
+        // Assert that the inventory container is displayed after login
+        Assert.assertTrue(inventoryContainer.isDisplayed(), "Inventory container is not visible after login");
 
-        // Click on login button
-        WebElement loginButton = driver.findElement(By.id("login-button"));
-        loginButton.click();
-
-        // Verify successful login by checking the presence of the "Swag Labs" text
-        WebElement swagLabsDiv = driver.findElement(By.xpath("//div[text()='Swag Labs']"));
-        Assert.assertTrue(swagLabsDiv.isDisplayed(), "Swag Labs div is not visible after login");
+        // Find the Swag Labs header element
+        WebElement swagLabsHeader = driver.findElement(By.className("title"));
+        
+        // Assert that the text "Swag Labs" is present in the Swag Labs header
+        Assert.assertTrue(swagLabsHeader.getText().contains("Swag Labs"), "'Swag Labs' text is not visible after login");
     }
 
-    @Test
+    @Test(priority = 3)
     public void testInvalidCredentialsLogin() {
-        // Reload the login page
-        driver.get(baseUrl);
+        // Login with invalid credentials
+        login("invalid_user", "invalid_password");
 
-        // Enter invalid username
-        WebElement usernameField = driver.findElement(By.id("user-name"));
-        usernameField.clear();
-        usernameField.sendKeys("invalid_user");
-
-        // Enter invalid password
-        WebElement passwordField = driver.findElement(By.id("password"));
-        passwordField.clear();
-        passwordField.sendKeys("invalid_password");
-
-        // Click on login button
-        WebElement loginButton = driver.findElement(By.id("login-button"));
-        loginButton.click();
-
-        // Verify unsuccessful login by checking the error message
-        WebElement errorMessageDiv = driver.findElement(By.cssSelector(".error-message-container.error"));
-        Assert.assertTrue(errorMessageDiv.isDisplayed(), "Error message div is not visible after login attempt");
-        Assert.assertTrue(errorMessageDiv.getText().contains("Epic sadface: Username and password do not match any user in this service"), "Error message text is incorrect");
+        // Wait until the error message container is visible
+        WebElement errorContainer = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".error-message-container.error")));
+        
+        // Assert that the error message container is displayed
+        Assert.assertTrue(errorContainer.isDisplayed(), "Error message container is not displayed");
+        
+        // Assert that the error message text contains the expected message for invalid credentials
+        Assert.assertTrue(errorContainer.getText().contains("Epic sadface: Username and password do not match any user"), "Error message text is incorrect");
     }
 
     @AfterClass
     public void tearDown() {
-        // Close the browser
+        // Quit the WebDriver instance after all tests are completed
         if (driver != null) {
             driver.quit();
+        }
+    }
+
+    // Method to perform login action with provided username and password
+    private void login(String username, String password) {
+        // Wait until the username field is visible
+        WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")));
+        
+        // Wait until the password field is visible
+        WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
+        
+        // Wait until the login button is clickable
+        WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button")));
+        
+        // Enter the username into the username field
+        usernameField.sendKeys(username);
+        
+        // Enter the password into the password field
+        passwordField.sendKeys(password);
+        
+        // Click on the login button
+        loginButton.click();
+    }
+
+    // Method to check if an element is present on the page
+    private boolean isElementPresent(By locator) {
+        try {
+            // Try to find the element
+            driver.findElement(locator);
+            return true; // Return true if element is found
+        } catch (org.openqa.selenium.NoSuchElementException e) {
+            return false; // Return false if element is not found
         }
     }
 }
